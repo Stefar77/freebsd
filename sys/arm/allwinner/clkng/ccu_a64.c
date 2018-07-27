@@ -57,25 +57,25 @@ __FBSDID("$FreeBSD$");
 #define	CLK_OSC_12M			0
 #define	CLK_PLL_CPUX			1
 #define	CLK_PLL_AUDIO_BASE		2
-#define	CLK_PLL_AUDIO		3
+#define	CLK_PLL_AUDIO			3
 #define	CLK_PLL_AUDIO_2X		4
 #define	CLK_PLL_AUDIO_4X		5
 #define	CLK_PLL_AUDIO_8X		6
-#define	CLK_PLL_VIDEO0		7
+#define	CLK_PLL_VIDEO0			7
 #define	CLK_PLL_VIDEO0_2X		8
 #define	CLK_PLL_VE			9
-#define	CLK_PLL_DDR0		10
+#define	CLK_PLL_DDR0			10
 #define	CLK_PLL_PERIPH0_2X		12
-#define	CLK_PLL_PERIPH1		13
+#define	CLK_PLL_PERIPH1			13
 #define	CLK_PLL_PERIPH1_2X		14
-#define	CLK_PLL_VIDEO1		15
+#define	CLK_PLL_VIDEO1			15
 #define	CLK_PLL_GPU			16
-#define	CLK_PLL_HSIC		18
+#define	CLK_PLL_HSIC			18
 #define	CLK_PLL_DE			19
-#define	CLK_PLL_DDR1		20
+#define	CLK_PLL_DDR1			20
 #define	CLK_CPUX			21
-#define	CLK_AXI			22
-#define	CLK_APB			23
+#define	CLK_AXI				22
+#define	CLK_APB				23
 #define	CLK_AHB1			24
 #define	CLK_APB1			25
 #define	CLK_APB2			26
@@ -489,6 +489,16 @@ PREDIV_CLK(ahb2_clk, CLK_AHB2,					/* id */
     0, 0, 2, AW_CLK_FACTOR_HAS_COND | AW_CLK_FACTOR_FIXED,	/* prediv */
     0, 2, 1);							/* prediv condition */
 
+static const char *ths_parents[] = {"osc24M"};
+NM_CLK(ths_clk,
+    CLK_THS, "ths", ths_parents,                /* id, name, parents */
+    0x74,                                       /* offset */
+    0, 2, 0, AW_CLK_FACTOR_THS_SOURCE,   	/* n factor */
+    0, 0, 1, AW_CLK_FACTOR_FIXED,               /* m factor */
+    24, 2,                                      /* mux */
+    31,                                         /* gate */
+    AW_CLK_HAS_GATE);                           /* flags */
+
 static const char *mod_parents[] = {"osc24M", "pll_periph0_2x", "pll_periph1_2x"};
 NM_CLK(nand_clk,
     CLK_NAND, "nand", mod_parents,		/* id, name, parents */
@@ -716,6 +726,7 @@ static struct aw_ccung_clk a64_ccu_clks[] = {
 	{ .type = AW_CLK_NM, .clk.nm = &hdmi_clk},
 	{ .type = AW_CLK_NM, .clk.nm = &mbus_clk},
 	{ .type = AW_CLK_NM, .clk.nm = &gpu_clk},
+        { .type = AW_CLK_NM, .clk.nm = &ths_clk},
 	{ .type = AW_CLK_PREDIV_MUX, .clk.prediv_mux = &ahb1_clk},
 	{ .type = AW_CLK_PREDIV_MUX, .clk.prediv_mux = &ahb2_clk},
 	{ .type = AW_CLK_MUX, .clk.mux = &cpux_clk},
