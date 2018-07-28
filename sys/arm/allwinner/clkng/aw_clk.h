@@ -114,9 +114,12 @@ aw_clk_get_factor(uint32_t val, struct aw_clk_factor *factor)
 	if (factor_val == 0 && (factor->flags & AW_CLK_FACTOR_ZERO_IS_ONE))
 		factor_val = 1;
 
-	if (factor->flags & AW_CLK_FACTOR_POWER_OF_TWO)
+	if (factor->flags & AW_CLK_FACTOR_POWER_OF_TWO){
 		factor_val = 1 << factor_val;
-	else if (!(factor->flags & AW_CLK_FACTOR_ZERO_BASED))
+		/* Nasty workaround for the 1 clock that does it differently */
+		if((factor->flags & AW_CLK_FACTOR_ZERO_BASED) && factor_val==8) factor_val=6;
+		
+	}else if (!(factor->flags & AW_CLK_FACTOR_ZERO_BASED))
 		factor_val += 1;
 
 	return (factor_val);
