@@ -514,32 +514,45 @@ aw_thermal_attach(device_t dev)
 		return (ENXIO);
 	}
 
-	if (clk_get_by_ofw_name(dev, 0, "ahb", &clk_ahb) == 0) {
-		error = clk_enable(clk_ahb);
-		if (error != 0) {
-			device_printf(dev, "cannot enable ahb clock\n");
-			goto fail;
-		}
+	if (clk_get_by_ofw_name(dev, 0, "ahb", &clk_ahb) != 0) {
+                device_printf(dev, "cannot find ahb clock\n");
+                goto fail;
 	}
-	if (clk_get_by_ofw_name(dev, 0, "ths", &clk_ths) == 0) {
-		error = clk_set_freq(clk_ths, sc->conf->clk_rate, 0);
-		if (error != 0) {
-			device_printf(dev, "cannot set ths clock rate\n");
-			goto fail;
-		}
-		error = clk_enable(clk_ths);
-		if (error != 0) {
-			device_printf(dev, "cannot enable ths clock\n");
-			goto fail;
-		}
+
+	error = clk_enable(clk_ahb);
+	if (error != 0) {
+		device_printf(dev, "cannot enable ahb clock\n");
+		goto fail;
 	}
-	if (hwreset_get_by_ofw_idx(dev, 0, 0, &rst) == 0) {
-		error = hwreset_deassert(rst);
-		if (error != 0) {
-			device_printf(dev, "cannot de-assert reset\n");
-			goto fail;
-		}
+
+	if (clk_get_by_ofw_name(dev, 0, "ths", &clk_ths) != 0){
+                device_printf(dev, "cannot find ths clock\n");
+                goto fail;
 	}
+		
+	error = clk_set_freq(clk_ths, sc->conf->clk_rate, 0);
+	if (error != 0) {
+		device_printf(dev, "cannot set ths clock rate\n");
+		goto fail;
+	}
+
+	error = clk_enable(clk_ths);
+	if (error != 0) {
+		device_printf(dev, "cannot enable ths clock\n");
+		goto fail;
+	}
+	
+	if (hwreset_get_by_ofw_idx(dev, 0, 0, &rst) != 0){
+                device_printf(dev, "cannot find reset\n");
+                goto fail;
+	}
+	
+	error = hwreset_deassert(rst);
+	if (error != 0) {
+		device_printf(dev, "cannot de-assert reset\n");
+		goto fail;
+	}
+
 
 	error = bus_setup_intr(dev, sc->res[1], INTR_TYPE_MISC | INTR_MPSAFE,
 	    NULL, aw_thermal_intr, dev, &ih);
