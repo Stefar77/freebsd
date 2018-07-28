@@ -493,7 +493,8 @@ static const char *ths_parents[] = {"osc24M"};
 NM_CLK(ths_clk,
     CLK_THS, "ths", ths_parents,                /* id, name, parents */
     0x74,                                       /* offset */
-    0, 2, 0, AW_CLK_FACTOR_THS_SOURCE,   	/* n factor */
+    0, 2, 0, AW_CLK_FACTOR_THS_SOURCE 		/* n factor */
+       	       | AW_CLK_FACTOR_ZERO_BASED,   	/* ths-fix */
     0, 0, 1, AW_CLK_FACTOR_FIXED,               /* m factor */
     24, 2,                                      /* mux */
     31,                                         /* gate */
