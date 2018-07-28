@@ -143,8 +143,8 @@ aw_clk_nm_find_best(struct aw_clk_nm_sc *sc, uint64_t fparent, uint64_t *fout,
     uint32_t *factor_n, uint32_t *factor_m)
 {
 	uint64_t cur, best;
-	uint32_t m, n, max_m, max_n, min_m, min_n;
-
+	uint32_t m, n, max_m, max_n, min_m, min_n, fake_n;
+	
 	*factor_n = *factor_m = 0;
 
 	max_m = aw_clk_factor_get_max(&sc->m);
@@ -154,13 +154,17 @@ aw_clk_nm_find_best(struct aw_clk_nm_sc *sc, uint64_t fparent, uint64_t *fout,
 
 	for (m = min_m; m <= max_m; ) {
 		for (n = min_m; n <= max_n; ) {
-			cur = fparent / n / m;
+			/* Nasty THS timer patch; it uses power of two until the last step. it ends with 6 instead of 8 */
+			if (n == 8 && ((sc->m.flags & (AW_CLK_FACTOR_POWER_OF_TWO | AW_CLK_FACTOR_POWER_OF_TWO))==
+			    (AW_CLK_FACTOR_POWER_OF_TWO | AW_CLK_FACTOR_POWER_OF_TWO))) fake_n=6; else fake_n=n;
+
+			cur = fparent / fake_n / m; 
 			if ((*fout - cur) < (*fout - best)) {
 				best = cur;
-				*factor_n = n;
-				*factor_m = m;
+				*factor_n = fake_n; 
+				*factor_m = m; 
 			}
-
+			
 			if ((sc->n.flags & AW_CLK_FACTOR_POWER_OF_TWO) != 0)
 				n <<= 1;
 			else
